@@ -28,27 +28,36 @@ app.post("/sign-up", (req, res) => {
   res.status(201).send("OK");
 });
 
+app.post("/tweets", (req, res) => {
+  const { username, tweet } = req.body;
 
-app.post('/tweets', (req, res) => {
-    const { username, tweet } = req.body;
+  if (!username || !tweet) {
+    return res.status(422).send("Todos os campos são obrigatórios");
+  }
 
-    if(!username || ! tweet){
-        return res.status(422).send("Todos os campos são obrigatórios");
-    }
-    
-    const newTweet = {
-        username,
-        tweet
-    }
+  const newTweet = {
+    username,
+    tweet,
+  };
 
-    arrTweets.push(newTweet);
-    res.status(201).send("OK");
-})
+  arrTweets.unshift(newTweet);
+  console.log(arrTweets)
+  res.status(201).send("OK");
+});
 
+app.get("/tweets", (req, res) => {
+  arrTweets.forEach(
+    (e) => (e.avatar = arrUsers.find((u) => u.username === e.username).avatar)
+  );
+  const page = [];
 
-app.get("/", (req, res) => {
-  console.log("Hello World");
+  for (let i = 0; i < 10 && i < arrTweets.length; i++) {
+    page.push(arrTweets[i]);
+  }
+  res.send(page);
 });
 
 const port = 5000;
 app.listen(port, () => console.log(`App running in http://localhost:${port}`));
+
+
