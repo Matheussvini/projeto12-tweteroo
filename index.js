@@ -25,7 +25,8 @@ app.post("/sign-up", (req, res) => {
 });
 
 app.post("/tweets", (req, res) => {
-  const { username, tweet } = req.body;
+  const { tweet } = req.body;
+  const username = req.headers.user;
 
   if (!username || !tweet) {
     return res.status(409).send("Todos os campos são obrigatórios");
@@ -42,25 +43,30 @@ app.post("/tweets", (req, res) => {
 });
 
 app.get("/tweets", (req, res) => {
-    let page = parseInt(req.query.page);
-    if(page < 1){
-        return res.status(400).send("Informe uma página válida!")
-    };
-    if((page -1) * 10 > arrTweets.length){
-        return res.status(400).send(`Só existem tweets até a página ${Math.trunc(arrTweets.length/10)+1}`)
-    }
-
+  let page = parseInt(req.query.page);
+  if (!page) {
+    page = 1;
+  }
+  if (page < 1) {
+    return res.status(400).send("Informe uma página válida!");
+  }
+  if ((page - 1) * 10 > arrTweets.length) {
+    return res
+      .status(400)
+      .send(
+        `Só existem tweets até a página ${
+          Math.trunc(arrTweets.length / 10) + 1
+        }`
+      );
+  }
+  
   arrTweets.forEach(
     (e) => (e.avatar = arrUsers.find((u) => u.username === e.username).avatar)
   );
   const tweetsWithAvatar = [];
 
-    if(!page){
-        page = 1;
-    }
-
-  for (let i = (10 * page) - 9; i <= 10 * page && i < arrTweets.length; i++) {
-    tweetsWithAvatar.push(arrTweets[i-1]);
+  for (let i = 10 * page - 10; i < 10 * page && i < arrTweets.length; i++) {
+    tweetsWithAvatar.push(arrTweets[i]);
   }
   res.send(tweetsWithAvatar);
 });
